@@ -7,49 +7,36 @@
 
 -export([eval_func_and_send_back/3, map/2]).
 
-eval_func_and_send_back(ParentPid, TargetFunction, Element) ->
+eval_func_and_send_back(ParentPid, TargetFunction, {Index, Element}) ->
   Result = TargetFunction(Element),
-  ParentPid ! {self(), Result}.
+  ParentPid ! {Index, Result}.
 
-spawn_and_eval(TargetFunction, Element) ->
+spawn_and_eval(TargetFunction, {Index, Element}) ->
   pool:pspawn(?MODULE, eval_func_and_send_back, [
     self(),
     TargetFunction,
-    Element
+    {Index, Element}
   ]).
 
-construct_indices(ChildPids) ->
-  iter_pids(maps:new(), ChildPids, 0).
-
-iter_pids(Indices, ChildPids, CurIndex) ->
+launch_next(Values, Index, TargetFunction) ->
   if
-    length(ChildPids) > 0 ->
-      [ChildPid | RestPids] = ChildPids,
-      NewIndices = maps:put(ChildPid, CurIndex, Indices),
-      iter_pids(NewIndices, RestPids, CurIndex + 1);
-    true ->
-      Indices
+    length(Values) > 0 ->
+      [Current | Rest] = Values,
+      spawn_and_eval(TargetFunction, {Index, Current}),
+      launch_next(Rest, Index + 1, TargetFunction);
+    true -> ok
   end.
+
+launch_map(Values, TargetFunction) -> launch_next(Values, 0, TargetFunction).
 
 map(TargetFunction, Values) ->
   pool:start(node()),
-  ProcessIds = lists:map(
-    fun(X) ->
-      spawn_and_eval(TargetFunction, X)
-    end,
-    Values),
-  Indices = construct_indices(ProcessIds),
+  launch_map(Values, TargetFunction),
   Results = lists:map(
     fun(_) ->
       receive
-        {ChildPid, Result} -> {maps:get(ChildPid, Indices), Result}
+        {Index, Result} -> {Index, Result}
       end
     end,
-    ProcessIds),
-  SortedResults = lists:sort(Results),
-  pool:stop(),
-  lists:map(
-    fun({_Index, Value}) ->
-      Value
-    end,
-    SortedResults).
+    Values),
+  lists:map(fun({_, Value}) -> Value end, lists:sort(Results)).
