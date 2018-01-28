@@ -15,5 +15,5 @@ fact(N) ->
 
 main() ->
   Numbers = [1000, 1, 5, 10],
-  Result = utils:parallel_map(fun fact/1, Numbers),
-  io:fwrite("~w ~w\n", [Numbers, Result]).
+  Result = parallel:map(fun fact/1, Numbers),
+  io:fwrite("~w -> ~w\n", [Numbers, Result]).

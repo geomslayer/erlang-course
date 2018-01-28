@@ -1,24 +1,18 @@
 %%%-------------------------------------------------------------------
 %%% @author geomslayer
-%%% @copyright (C) 2018, <COMPANY>
-%%% @doc
-%%%
-%%% @end
 %%% Created : 28. Янв. 2018 15:57
 %%%-------------------------------------------------------------------
--module(utils).
+-module(parallel).
 -author("geomslayer").
 
-%% API
--export([eval_func_and_send_back/3, parallel_map/2]).
-
+-export([eval_func_and_send_back/3, map/2]).
 
 eval_func_and_send_back(ParentPid, TargetFunction, Element) ->
   Result = TargetFunction(Element),
   ParentPid ! {self(), Result}.
 
 spawn_and_eval(TargetFunction, Element) ->
-  spawn(?MODULE, eval_func_and_send_back, [
+  pool:pspawn(?MODULE, eval_func_and_send_back, [
     self(),
     TargetFunction,
     Element
@@ -37,7 +31,8 @@ iter_pids(Indices, ChildPids, CurIndex) ->
       Indices
   end.
 
-parallel_map(TargetFunction, Values) ->
+map(TargetFunction, Values) ->
+  pool:start(node()),
   ProcessIds = lists:map(
     fun(X) ->
       spawn_and_eval(TargetFunction, X)
@@ -52,6 +47,7 @@ parallel_map(TargetFunction, Values) ->
     end,
     ProcessIds),
   SortedResults = lists:sort(Results),
+  pool:stop(),
   lists:map(
     fun({_Index, Value}) ->
       Value
