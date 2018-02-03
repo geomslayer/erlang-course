@@ -39,4 +39,5 @@ map(TargetFunction, Values) ->
       end
     end,
     Values),
+  pool:stop(),
   lists:map(fun({_, Value}) -> Value end, lists:sort(Results)).
