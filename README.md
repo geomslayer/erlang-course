@@ -1,4 +1,7 @@
 ## Erlang course
 
-Every homework is placed on a separate branch,
-for example `hw_1`.
+### Homework 2
+
+Задание было выполнено на 8 баллов.
+
+Основные функции для использования - encode, decode из модуля Steganography.
