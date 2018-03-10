@@ -10,24 +10,6 @@ typedef struct Matrix {
     int diff_y;
 } matrix;
 
-//matrix* get_vector(int len) {
-//    matrix *vector = malloc(sizeof(matrix));
-//    vector->ptr = malloc(len * sizeof(double));
-//    vector->rows = len;
-//    vector->cols = 0;
-//    vector->start = vector->step = -1;
-//    return vector;
-//}
-//
-//matrix* get_matr(int rows, int cols) {
-//    matrix *matr = malloc(sizeof(matrix));
-//    matr->ptr = malloc(rows * cols * sizeof(double));
-//    matr->rows = rows;
-//    matr->cols = cols;
-//    matr->start = matr->step = -1;
-//    return matr;
-//}
-
 void init_matrix(matrix *matr, int rows, int cols) {
     matr->ptr = malloc((cols > 0 ? rows * cols : rows) * sizeof(double));
     matr->rows = rows;
@@ -44,40 +26,6 @@ ERL_NIF_TERM matrix_to_tuple(ErlNifEnv *env, const matrix *matr) {
     ERL_NIF_TERM diff_y_term = enif_make_int(env, matr->diff_y);
     return enif_make_tuple6(env, ptr_term, rows_term, cols_term, start_term, diff_x_term, diff_y_term);
 }
-
-//ERL_NIF_TERM arr_to_term(ErlNifEnv* env, double *arr, int rows, int cols) {
-//    ERL_NIF_TERM rows_term = enif_make_int(env, rows);
-//    ERL_NIF_TERM arr_term = enif_make_int64(env, arr);
-//    ERL_NIF_TERM cols_term = enif_make_int(env, cols);
-//    return enif_make_tuple3(env, arr_term, rows_term, cols_term);
-//}
-
-//static ERL_NIF_TERM from_list_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
-//{
-//    unsigned int len;
-//    enif_get_list_length(env, argv[0], &len);
-//
-//    size_t size = len * sizeof(double);
-//    double *arr = malloc(size);
-//
-//    ERL_NIF_TERM list = argv[0];
-//    for (int i = 0; i < len; ++i) {
-//        ERL_NIF_TERM head, tail;
-//        enif_get_list_cell(env, list, &head, &tail);
-//
-//        double val;
-//        enif_get_double(env, head, &val);
-//
-//        arr[i] = val;
-//        list = tail;
-//    }
-//
-////    ERL_NIF_TERM len_term = enif_make_int(env, len);
-////    ERL_NIF_TERM arr_term = enif_make_int64(env, arr);
-////
-////    return enif_make_tuple2(env, len_term, arr_term);
-//    return arr_to_term(env, arr, len);
-//}
 
 void list_to_arr(ErlNifEnv *env, ERL_NIF_TERM list, double *arr, int len) {
     for (int i = 0; i < len; ++i) {
@@ -136,23 +84,6 @@ void tuple_to_matrix(ErlNifEnv *env, const ERL_NIF_TERM obj, matrix *matr) {
     enif_get_int(env, tuple[4], &matr->diff_x);
     enif_get_int(env, tuple[5], &matr->diff_y);
 }
-
-//static ERL_NIF_TERM to_list_nif(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
-//{
-//    int len;
-//    double *arr;
-//    get_array(env, argv[0], &len, &arr);
-//
-//    ERL_NIF_TERM list = enif_make_list(env, 0);
-//
-//    for (int i = len - 1; i >= 0; --i) {
-//        ERL_NIF_TERM head = enif_make_double(env, arr[i]);
-//        ERL_NIF_TERM tail = list;
-//        list = enif_make_list_cell(env, head, tail);
-//    }
-//
-//    return list;
-//}
 
 ERL_NIF_TERM arr_to_list(ErlNifEnv *env, double *arr, int len) {
     ERL_NIF_TERM list = enif_make_list(env, 0);
