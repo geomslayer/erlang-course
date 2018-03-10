@@ -1,4 +1,4 @@
-## Erlang course
+### ДЗ 3
 
-Every homework is placed on a separate branch,
-for example `hw_1`.
+Задание выполнено на 8 баллов.
+Для каждой функции имеется краткое описание и примеры.
